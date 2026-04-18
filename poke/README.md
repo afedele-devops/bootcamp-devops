@@ -1,5 +1,5 @@
 
-# Poké Battle — SPA (Estático)
+# Pokémon Battle - SPA
 
 Aplicación demo: juego tipo Pokémon (SPA) construido con HTML, Tailwind (CDN) y JavaScript modular, sin frameworks.
 
@@ -60,8 +60,8 @@ Extensiones recomendadas (siguientes pasos)
 - Añadir pruebas y comprobaciones de contraste WCAG
 
 Contribuir
-- Fork y PR. Mantén cambios pequeños y documentados.
+- Fork y PR. Mantener cambios pequeños y documentados.
 
 Licencia
-- Este proyecto es un scaffold de ejemplo; añade licencia si lo deseas.
+- Este proyecto es un scaffold de ejemplo; añadir licencia si es necesario.
 
