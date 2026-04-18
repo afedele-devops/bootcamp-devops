@@ -65,3 +65,11 @@ Contribuir
 Licencia
 - Este proyecto es un scaffold de ejemplo; añadir licencia si es necesario.
 
+# Imágenes del juego
+<img src="images/home.png" alt="Vista principal" width="400">
+<img src="images/poke.png" alt="Pokémon" width="400">
+<img src="images/battle.png" alt="Batallas" width="400">
+
+
+
+
