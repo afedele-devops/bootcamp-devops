@@ -11,5 +11,69 @@ a:hover{opacity:.95}
 /* dark tweaks */
 :root.dark, .dark{--bg:#0f172a}
 
+/* Dark mode contrast improvements */
+.dark {
+  color: #e6eef8;
+}
+
+/* Target elements that use Tailwind's bg-white classes (class names may contain slashes) */
+.dark [class*="bg-white"] {
+  background-color: rgba(255,255,255,0.04) !important;
+  color: #e6eef8 !important;
+}
+
+.dark .btn{
+  background-color: rgba(255,255,255,0.03) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: #e6eef8 !important;
+}
+
+.dark input, .dark select, .dark textarea {
+  background-color: rgba(255,255,255,0.03) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: #e6eef8 !important;
+}
+
+.dark .shadow {
+  box-shadow: 0 6px 18px rgba(2,6,23,0.6) !important;
+}
+
+.dark a { color: #93c5fd }
+
+/* Card component for consistent backgrounds and contrast */
+.card{
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(2,6,23,0.06);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.08);
+}
+
+.card p, .card div, .card h2, .card h3, .card a, .card span, .card button {
+  color: inherit;
+}
+
+/* Improved dark styles for cards */
+.dark .card{
+  background-color: rgba(255,255,255,0.02) !important;
+  border-color: rgba(255,255,255,0.06) !important;
+  box-shadow: 0 8px 28px rgba(2,6,23,0.6) !important;
+  color: #e6eef8 !important;
+}
+
+.dark .battle-card{ /* stronger contrast for battle area */
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-left: 4px solid rgba(99,102,241,0.6);
+}
+
+/* Battle animations */
+.battle-stage{align-items:stretch}
+.poke-card{transition:transform .25s ease, box-shadow .2s ease}
+.poke-card.attacking{transform: translateY(-6px) scale(1.03)}
+.poke-card.shake{animation: poke-shake .35s ease}
+@keyframes poke-shake{ 0%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}100%{transform:translateX(0)} }
+.hp-fill{transition:width 600ms ease}
+
+
+
 /* small utilities */
 .rounded{border-radius:.5rem}

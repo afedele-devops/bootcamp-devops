@@ -1,6 +1,6 @@
 import { fetchPokemonList, fetchPokemon } from './api.js'
 import { store, capture, release } from './store.js'
-import { battleSimulation } from './battle.js'
+import { battleSimulation, animateBattle } from './battle.js'
 
 const TYPE_COLORS = {
   grass: 'bg-green-400', fire: 'bg-red-400', water: 'bg-blue-400', electric: 'bg-amber-300',
@@ -21,6 +21,7 @@ function topbar(){
     <div class="flex items-center gap-3">
       <a href="#/pokedex" class="btn">Mi Pokédex</a>
       <a href="#/battle" class="btn">Batalla</a>
+      <button id="soundToggle" class="px-3 py-1 border rounded">🔊</button>
       <button id="themeToggle" class="px-3 py-1 border rounded">Modo</button>
     </div>
   </header>`
@@ -35,7 +36,7 @@ export async function renderHome(container){
   populateFilter(pokes)
   renderList(pokes, listEl)
   bindSearch()
-  bindThemeToggle()
+  bindControls()
 }
 
 function skeletonGrid(n){
@@ -116,7 +117,7 @@ export async function renderDetail(container, id){
       else { capture(p.id); document.getElementById('captureBtn').textContent='Liberar' }
     })
   }catch(e){ dEl.innerHTML = '<div class="p-4">Error al cargar</div>' }
-  bindThemeToggle()
+  bindControls()
 }
 
 export async function renderPokedex(container){
@@ -126,14 +127,14 @@ export async function renderPokedex(container){
   if(ids.length===0) { g.innerHTML = '<div>No has capturado Pokémon aun.</div>'; return }
   g.innerHTML = ids.map(id=>`<div class="p-3 bg-white rounded shadow flex items-center justify-between"><a href="#/pokemon/${id}">#${id}</a><button data-id="${id}" class="text-red-500">Eliminar</button></div>`).join('')
   g.querySelectorAll('button').forEach(b=>b.addEventListener('click', e=>{ release(Number(e.target.dataset.id)); renderPokedex(container) }))
-  bindThemeToggle()
+  bindControls()
 }
 
 export function renderBattle(container){
   container.innerHTML = topbar() + `
     <main class="p-4 max-w-3xl mx-auto">
       <h2 class="text-xl font-bold mb-4">Modo Batalla</h2>
-      <div id="battleArea" class="bg-white p-4 rounded shadow min-h-[300px]"></div>
+      <div id="battleArea" class="card battle-card p-4 rounded shadow min-h-[300px]"></div>
     </main>`
   const area = document.getElementById('battleArea')
   area.innerHTML = `<div class="mb-4">Selecciona tu Pokémon:</div><div id="sel" class="grid grid-cols-3 gap-2"></div>`
@@ -149,25 +150,39 @@ export function renderBattle(container){
       document.getElementById('sel').appendChild(btn)
     }catch(e){}
   })
-  bindThemeToggle()
+  bindControls()
 }
 
 async function startBattle(playerPoke, area){
   area.innerHTML = `<div class="p-4">Buscando rival...</div>`
   const rivalId = Math.floor(Math.random()*150)+1
   const rival = await fetchPokemon(rivalId)
-  area.innerHTML = battleSimulation(playerPoke, rival)
+  await animateBattle(playerPoke, rival, area)
 }
 
-function bindThemeToggle(){
-  const btn = document.getElementById('themeToggle')
-  if(!btn) return
-  const dark = localStorage.getItem('dark') === '1'
-  setDark(dark)
-  btn.addEventListener('click', ()=>{ setDark(!(document.documentElement.classList.contains('dark'))) })
+function bindControls(){
+  // theme toggle
+  const tbtn = document.getElementById('themeToggle')
+  if(tbtn){
+    const dark = localStorage.getItem('dark') === '1'
+    setDark(dark)
+    tbtn.addEventListener('click', ()=>{ setDark(!(document.documentElement.classList.contains('dark'))) })
+  }
+  // sound toggle
+  const sbtn = document.getElementById('soundToggle')
+  if(sbtn){
+    const on = localStorage.getItem('sound') !== '0'
+    setSoundUI(sbtn, on)
+    sbtn.addEventListener('click', ()=>{ const cur = localStorage.getItem('sound') !== '0'; setSoundUI(sbtn, !cur) })
+  }
 }
 
 function setDark(v){
   if(v){ document.documentElement.classList.add('dark'); document.body.classList.add('bg-slate-900','text-slate-100'); localStorage.setItem('dark','1') }
   else{ document.documentElement.classList.remove('dark'); document.body.classList.remove('bg-slate-900','text-slate-100'); localStorage.setItem('dark','0') }
+}
+
+function setSoundUI(btn, on){
+  if(on){ btn.textContent = '🔊'; localStorage.setItem('sound','1') }
+  else{ btn.textContent = '🔈'; localStorage.setItem('sound','0') }
 }

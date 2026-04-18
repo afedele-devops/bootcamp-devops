@@ -68,10 +68,19 @@ server {
     index index.html;
 
     location / {
-        try_files \$uri \$uri/ =404;
+        try_files \$uri \$uri/ /index.html;
     }
 }
 EOL
+
+#4b- habilitar el sitio en sites-enabled
+log_info "Habilitando sitio ${APP_NAME} en nginx..."
+if [ ! -e "/etc/nginx/sites-enabled/${APP_NAME}" ]; then
+    sudo ln -s ${NGINX_DIR} /etc/nginx/sites-enabled/
+    log_success "Sitio ${APP_NAME} habilitado en sites-enabled."
+else
+    log_info "El sitio ${APP_NAME} ya estaba habilitado."
+fi
 
 #5- validar configuracion de nginx
 log_info "Validando configuración de nginx..."
