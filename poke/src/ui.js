@@ -2,6 +2,18 @@ import { fetchPokemonList, fetchPokemon } from './api.js'
 import { store, capture, release } from './store.js'
 import { battleSimulation, animateBattle } from './battle.js'
 
+let activeBattleController = null
+
+function cancelActiveBattle(){
+  if(activeBattleController){
+    activeBattleController.abort()
+    activeBattleController = null
+  }
+}
+
+window.addEventListener('hashchange', cancelActiveBattle)
+window.addEventListener('beforeunload', cancelActiveBattle)
+
 const TYPE_COLORS = {
   grass: 'bg-green-400', fire: 'bg-red-400', water: 'bg-blue-400', electric: 'bg-amber-300',
   rock: 'bg-amber-700', ground: 'bg-yellow-600', psychic: 'bg-pink-400', fighting: 'bg-rose-600',
@@ -144,7 +156,7 @@ export function renderBattle(container){
   toShow.forEach(async id=>{
     try{ const p = await fetchPokemon(id)
       const btn = document.createElement('button')
-      btn.className = 'p-2 bg-slate-100 rounded flex items-center gap-2'
+      btn.className = 'battle-select-btn p-2 rounded flex items-center gap-2'
       btn.innerHTML = `<img src="${p.sprites.front_default}" class="w-10"/><span>#${p.id} ${p.name}</span>`
       btn.addEventListener('click', ()=>startBattle(p, area))
       document.getElementById('sel').appendChild(btn)
@@ -154,10 +166,18 @@ export function renderBattle(container){
 }
 
 async function startBattle(playerPoke, area){
+  cancelActiveBattle()
+  activeBattleController = new AbortController()
   area.innerHTML = `<div class="p-4">Buscando rival...</div>`
   const rivalId = Math.floor(Math.random()*150)+1
   const rival = await fetchPokemon(rivalId)
-  await animateBattle(playerPoke, rival, area)
+  try{
+    await animateBattle(playerPoke, rival, area, { signal: activeBattleController.signal })
+  }catch(e){
+    // Battle was canceled due to navigation or page leave.
+  }finally{
+    activeBattleController = null
+  }
 }
 
 function bindControls(){

@@ -22,13 +22,16 @@ export function battleSimulation(a, b){
   return `<div class="p-4"><h3 class="font-bold">${a.name} vs ${b.name}</h3><div class="mt-2">${log.map(l=>`<div class="text-sm">${l}</div>`).join('')}<div class="mt-4 font-semibold">Ganador: ${winner.name}</div></div></div>`
 }
 
-export async function animateBattle(player, rival, container){
+export async function animateBattle(player, rival, container, options = {}){
+  const signal = options.signal
   const hpPlayer = sumStats(player)
   const hpRival = sumStats(rival)
   let state = {
     player: {hp: hpPlayer, max: hpPlayer},
     rival: {hp: hpRival, max: hpRival}
   }
+
+  if(signal?.aborted) throw new Error('Battle aborted')
 
   container.innerHTML = `
     <div class="battle-stage flex flex-col md:flex-row gap-6 items-stretch">
@@ -56,16 +59,35 @@ export async function animateBattle(player, rival, container){
   const hpRivalEl = container.querySelector('#hp-rival')
 
   function pushLog(text){
+    if(signal?.aborted) return
     const d = document.createElement('div')
     d.textContent = text
     logEl.appendChild(d)
     logEl.scrollTop = logEl.scrollHeight
   }
 
-  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)) }
+  function sleep(ms){
+    return new Promise((resolve, reject)=>{
+      if(signal?.aborted) return reject(new Error('Battle aborted'))
+      const timer = setTimeout(()=>{
+        cleanup()
+        resolve()
+      }, ms)
+      function onAbort(){
+        clearTimeout(timer)
+        cleanup()
+        reject(new Error('Battle aborted'))
+      }
+      function cleanup(){
+        if(signal) signal.removeEventListener('abort', onAbort)
+      }
+      if(signal) signal.addEventListener('abort', onAbort, { once: true })
+    })
+  }
 
   let turn = 0
   while(state.player.hp>0 && state.rival.hp>0){
+    if(signal?.aborted) throw new Error('Battle aborted')
     const attacker = (turn%2===0)?'player':'rival'
     const defender = attacker==='player' ? 'rival' : 'player'
     const atkCard = attacker==='player' ? cardPlayer : cardRival
