@@ -2,8 +2,17 @@
 # Despliegue de sitio estático en S3
 
 ## Resumen
-**deploy.sh** es un script Bash que automatiza la creación y configuración de un bucket S3 para servir un **sitio estático**. Ejecuta los pasos necesarios para: crear bucket, validar creación, configurar Public Access Block, aplicar una **Bucket Policy** pública mínima, subir `index.html` y `error.html`, habilitar Static Website Hosting y verificar el endpoint.
+**deploy.sh** es un script Bash que automatiza, paso a paso, la publicación de una página web estática en Amazon S3. Está pensado para usuarios nuevos: ejecuta las acciones necesarias para crear el bucket, comprobar que realmente se creó, configurar el control de acceso, aplicar una política mínima para servir archivos públicamente, subir tu `index.html` y un `error.html` (si existe), activar el hosting estático y comprobar que el sitio responde en su URL pública.
 
+El flujo que realiza es este, explicado de forma simple:
+- **Crear el bucket** en la región que indiques y esperar hasta confirmar que existe.  
+- **Configurar Public Access Block** para permitir gestionar el acceso mediante políticas en lugar de ACLs.  
+- **Aplicar una Bucket Policy mínima** que permite leer objetos (sólo si quieres que el sitio sea público).  
+- **Subir los archivos** `index.html` (obligatorio) y `error.html` (opcional) con el tipo de contenido correcto.  
+- **Habilitar Static Website Hosting** para que S3 sirva tu sitio como una página web.  
+- **Verificar el endpoint** final (la URL pública) y reportar el resultado (código HTTP o errores comunes).
+
+El script incluye validaciones y mensajes claros para que sepas en qué paso está, detecta errores frecuentes (región mal escrita, falta de permisos, bucket no creado) y evita usar ACLs, siguiendo las prácticas recomendadas de AWS.
 ---
 
 ## Requisitos
