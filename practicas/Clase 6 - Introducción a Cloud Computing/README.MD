@@ -27,11 +27,8 @@ El script incluye validaciones y mensajes claros para que sepas en qué paso est
 
 ## Contenido del repositorio
 - **deploy.sh** — Script principal para automatizar el despliegue.  
-- **index.html** — Página de inicio que se sube al bucket (debe existir antes de ejecutar).  
-- **error.html** — Página de error opcional.  
+- **index.html** — Página de inicio que se sube al bucket (debe existir antes de ejecutar).   
 - **README.md** — Este archivo con instrucciones y notas.  
-- **bucket-policy.json** — Policy pública mínima de ejemplo.
-
 ---
 
 ## Uso
