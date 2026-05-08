@@ -1,0 +1,15 @@
+# providers descargados por terraform
+.terraform/
+
+# archivos de estado de terraform
+*.tfstate
+*.tfstate.backup    
+
+# archivos de configuración de terraform
+*.tfvars
+*.tfvars.json   
+
+# crash logs y planes de terraform
+crash.log
+*.tfplan
+
