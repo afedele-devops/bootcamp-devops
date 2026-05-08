@@ -12,4 +12,5 @@
 # crash logs y planes de terraform
 crash.log
 *.tfplan
+*.out
 
