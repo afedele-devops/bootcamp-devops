@@ -1,0 +1,11 @@
+Laboratorio local con Terraform
+===============================
+Proyecto      : Laboratorio IA de archivos locales
+Autor         : Antonio
+Entorno       : practica
+Sufijo unico  : 7302e3aa
+Generado en   : 2026-05-08T21:00:02Z
+Workspace     : default
+
+Mensaje:
+Este archivo se crea en disco local usando contenido dinamico y un identificador aleatorio.
