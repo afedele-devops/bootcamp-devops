@@ -1,0 +1,21 @@
+# docker build -t web-docker .
+# docker run -d --name web-app-docker -p 8092:80 web-app-docker
+
+services:
+  web-app-docker:
+    container_name: web-app-docker #opcional
+    build: . # Construye la imagen a partir del Dockerfile en el directorio actual
+    ports:
+      - "8092:80"
+    depends_on:
+      - db # Asegura que el servicio de base de datos se inicie antes que la aplicación web 
+  db:
+      container_name: db #opcional 
+      image: mysql:latest
+      environment:
+        MYSQL_ROOT_PASSWORD: example
+        MYSQL_DATABASE: mydb
+        MYSQL_USER: user
+        MYSQL_PASSWORD: password
+      ports:
+        - "3306:3306"

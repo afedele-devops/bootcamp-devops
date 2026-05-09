@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokemon Container Lab</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="layout">
+    <main class="panel">
+      <h1>Pokemon Container Lab</h1>
+      <p class="subtitle">Search Pokemon, inspect cache behavior, and keep distributed favorites in Redis.</p>
+
+      <form id="searchForm" class="search-row">
+        <input id="pokemonInput" type="text" placeholder="Try pikachu" required />
+        <button type="submit">Search</button>
+      </form>
+
+      <div id="sourceBadge" class="badge hidden"></div>
+      <section id="pokemonCard" class="card hidden"></section>
+      <p id="message" class="message"></p>
+    </main>
+
+    <aside class="panel favorites-panel">
+      <div class="favorites-header">
+        <h2>Session Favorites</h2>
+        <button id="refreshFavorites" class="ghost">Refresh</button>
+      </div>
+      <ul id="favoritesList" class="favorites-list"></ul>
+    </aside>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>

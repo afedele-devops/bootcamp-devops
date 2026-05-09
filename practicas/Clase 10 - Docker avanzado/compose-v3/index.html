@@ -1,0 +1,278 @@
+<!-- index.html -->
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sitio estático en Docker Compose</title>
+  <meta name="description" content="Sitio estático servido con Docker Compose - diseño moderno y oscuro." />
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --card:#0f1720;
+      --muted:#9aa6b2;
+      --accent:#6ee7b7;
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      --maxw:980px;
+      --gap:20px;
+      --shadow: 0 6px 18px rgba(2,6,23,0.6);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:
+        radial-gradient(1200px 600px at 10% 10%, rgba(110,231,183,0.04), transparent 8%),
+        radial-gradient(900px 400px at 90% 90%, rgba(99,102,241,0.03), transparent 6%),
+        var(--bg);
+      color:#fff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      padding:40px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+    }
+
+    .wrap{
+      width:100%;
+      max-width:var(--maxw);
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:18px;
+      padding:28px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(6px) saturate(120%);
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      margin-bottom:18px;
+    }
+
+    .avatar{
+      width:64px;
+      height:64px;
+      border-radius:12px;
+      background:linear-gradient(135deg,#0ea5a4,#7c3aed);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      color:rgba(255,255,255,0.95);
+      font-size:20px;
+      flex-shrink:0;
+      box-shadow: 0 6px 18px rgba(12,18,28,0.6);
+    }
+
+    h1{
+      margin:0;
+      font-size:20px;
+      letter-spacing:0.2px;
+    }
+
+    .sub{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:6px;
+    }
+
+    .hero{
+      display:flex;
+      gap:20px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:22px;
+      flex-wrap:wrap;
+    }
+
+    .intro{
+      max-width:64%;
+      min-width:260px;
+    }
+
+    .cta{
+      background:linear-gradient(90deg, rgba(110,231,183,0.12), rgba(99,102,241,0.08));
+      padding:12px 16px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.03);
+      color:var(--accent);
+      font-weight:600;
+      font-size:14px;
+      display:inline-flex;
+      gap:10px;
+      align-items:center;
+    }
+
+    main{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:var(--gap);
+    }
+
+    @media (max-width:880px){
+      .intro{max-width:100%}
+      main{grid-template-columns:1fr; margin-top:12px}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:18px;
+      border:1px solid rgba(255,255,255,0.03);
+      transition:transform .28s ease, box-shadow .28s ease;
+      box-shadow: 0 8px 20px rgba(2,6,23,0.45);
+      min-height:140px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .card:hover{
+      transform:translateY(-8px);
+      box-shadow: 0 18px 40px rgba(2,6,23,0.6);
+    }
+
+    .card .icon{
+      width:44px;
+      height:44px;
+      border-radius:10px;
+      background:var(--glass);
+      display:inline-grid;
+      place-items:center;
+      color:var(--accent);
+      flex-shrink:0;
+    }
+
+    .card h3{
+      margin:0;
+      font-size:16px;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    footer{
+      margin-top:20px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .meta{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .badge{
+      background:rgba(255,255,255,0.03);
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:600;
+      color:var(--accent);
+      border:1px solid rgba(255,255,255,0.02);
+      font-size:13px;
+    }
+
+    /* small utilities */
+    .row{display:flex;gap:12px;align-items:center}
+    .muted{color:var(--muted)}
+    a{color:var(--accent);text-decoration:none}
+    .learn-list{display:flex;flex-direction:column;gap:10px}
+    .learn-item{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .dot{
+      width:10px;height:10px;border-radius:50%;
+      background:linear-gradient(180deg,var(--accent),#60a5fa);
+      margin-top:6px;
+      flex-shrink:0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <header>
+      <div class="avatar" aria-hidden="true">D</div>
+      <div>
+        <h1>Sitio estático en Docker Compose</h1>
+        <div class="sub">Creado por <strong>Antonio</strong> — Contenedor servido con Nginx</div>
+      </div>
+      <div style="margin-left:auto" class="row">
+        <div class="badge">Docker • Compose</div>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="intro-title">
+      <div class="intro">
+        <h2 id="intro-title" style="margin:0 0 8px 0;font-size:18px">Bienvenido</h2>
+        <p class="muted" style="margin:0 0 12px 0">Esta es una página estática servida a través de Docker Compose. El contenido se sirve desde un contenedor Nginx usando un volumen bind mount. Diseño moderno, sin dependencias externas y con contraste alto para lectura nocturna.</p>
+        <div class="cta" role="note" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="opacity:.95" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v20" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 9l7-7 7 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Servido desde Nginx
+        </div>
+      </div>
+      <div style="min-width:220px; text-align:right;">
+        <div class="muted" style="font-size:13px">Título del sitio</div>
+        <div style="font-weight:700;font-size:18px;margin-top:6px">Sitio estático en Docker Compose</div>
+      </div>
+    </section>
+
+    <main aria-label="Cosas aprendidas">
+      <article class="card" aria-labelledby="c1">
+        <div class="row">
+          <div class="icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 12h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 6h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 18h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <h3 id="c1">Orquestación de contenedores</h3>
+            <p>Docker Compose permite definir y ejecutar múltiples contenedores como un servicio único. Este archivo HTML se sirve a través de Nginx en un contenedor.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" aria-labelledby="c2">
+        <div class="row">
+          <div class="icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3v18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M20 7a8 8 0 0 0-16 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <h3 id="c2">Volúmenes y persistencia</h3>
+            <p>Este contenedor usa volúmenes para acceder al contenido estático. Los volúmenes permiten compartir archivos entre el host y el contenedor en tiempo real.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card" aria-labelledby="c3">
+        <div class="row">
+          <div class="icon" aria-hidden="true">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l3 7h7l-5.5 4 2 7L12 17l-6.5 3 2-7L2 9h7z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <h3 id="c3">Redes de Docker</h3>
+            <p>Docker Compose crea una red interna donde los servicios se comunican por nombre. Todos los contenedores en el mismo compose comparten esta red.</p>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <footer>
+      <div class="meta">Diseño moderno • Fondo oscuro • Texto blanco</div>
+      <div class="meta">Servido a través de Docker Compose y Nginx</div>
+    </footer>
+  </div>
+</body>
+</html>

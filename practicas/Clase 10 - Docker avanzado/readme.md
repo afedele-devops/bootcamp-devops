@@ -167,3 +167,191 @@ docker compose -f compose.yml down
 1. Ejecutar cada practica por separado para evitar confusiones de puertos y contenedores.
 2. Usar docker compose ps para validar estado.
 3. Usar docker logs <contenedor> para diagnosticar problemas.
+
+## Practica 3: compose-v3
+
+Archivos principales:
+
+1. compose-v3/compose.yml
+2. compose-v3/Dockerfile
+3. compose-v3/index.html
+
+### Objetivo
+
+Extender el ejercicio de sitio estatico agregando un segundo servicio de base de datos para practicar Compose con multiples contenedores y dependencias entre servicios.
+
+### Configuracion
+
+1. Servicio web-app-docker
+	- build desde Dockerfile local.
+	- publica puerto 8092 -> 80.
+	- depende de db usando depends_on.
+
+2. Servicio db
+	- imagen mysql:latest.
+	- variables de entorno para inicializacion:
+	  - MYSQL_ROOT_PASSWORD
+	  - MYSQL_DATABASE
+	  - MYSQL_USER
+	  - MYSQL_PASSWORD
+	- publica 3306 -> 3306.
+
+### Comandos de ejecucion
+
+Desde compose-v3:
+
+```bash
+docker compose -f compose.yml up -d --build
+```
+
+Ver estado:
+
+```bash
+docker compose -f compose.yml ps
+```
+
+Ver logs:
+
+```bash
+docker compose -f compose.yml logs -f
+```
+
+Detener y eliminar:
+
+```bash
+docker compose -f compose.yml down
+```
+
+### Verificacion esperada
+
+1. http://localhost:8092 muestra el sitio estatico servido por Nginx.
+2. El contenedor db inicia con MySQL escuchando en 3306.
+3. El servicio web se levanta despues de que Compose inicia db (orden de arranque via depends_on).
+
+## Practica 4: compose-v4
+
+Archivos principales:
+
+1. compose-v4/docker-compose.yml
+2. compose-v4/.env.example
+3. compose-v4/backend/Dockerfile
+4. compose-v4/backend/src/server.js
+5. compose-v4/frontend/Dockerfile
+6. compose-v4/frontend/nginx/default.conf
+7. compose-v4/frontend/index.html
+8. compose-v4/frontend/app.js
+
+### Objetivo
+
+Construir una app full-stack de Pokemon con arquitectura de contenedores, cache con Redis y sesiones distribuidas por identificador de sesion.
+
+### Arquitectura
+
+1. backend (Node.js + Express)
+	- puerto interno 3000.
+	- consulta PokeAPI y aplica cache en Redis con TTL de 60 segundos.
+	- administra favoritos por sesion (cookie sid o header x-session-id).
+	- middleware de logging: metodo, ruta, status y duracion.
+
+2. frontend (Nginx + HTML/CSS/JS)
+	- puerto interno 80.
+	- UI para buscar Pokemon, ver card, agregar y borrar favoritos.
+	- muestra si la respuesta vino de cache o de API.
+	- proxy_pass de /api/* hacia backend:3000.
+
+3. redis (redis:7-alpine)
+	- modo ephemeral: sin snapshot ni appendonly.
+	- usado para:
+	  - pokemon:<name> (cache con TTL).
+	  - session:<sessionId>:favorites (set de favoritos por sesion).
+
+4. red interna
+	- pockemon-net (driver bridge).
+
+### Variables de entorno
+
+Definidas en compose-v4/.env.example:
+
+1. REDIS_HOST
+2. REDIS_PORT
+3. SESSION_SECRET
+4. PORT
+5. NODE_EV
+6. FRONTEND_PORT
+
+Notas:
+
+1. En docker-compose.yml se usan valores por defecto para evitar fallos si falta algun valor.
+2. FRONTEND_PORT permite evitar conflictos cuando 8080 ya esta ocupado.
+
+### Contenerizacion
+
+1. Backend
+	- Dockerfile multi-stage (builder + runtime).
+	- usuario no-root (appuser).
+	- EXPOSE 3000.
+	- HEALTHCHECK con wget a /health.
+
+2. Frontend
+	- imagen base nginx:latest.
+	- copia estaticos y configuracion Nginx custom.
+	- EXPOSE 80.
+	- HEALTHCHECK a /health.
+
+3. Redis
+	- healthcheck con redis-cli ping.
+	- opcion de persistencia documentada de forma comentada en compose.
+
+### Endpoints backend
+
+1. GET /health
+2. GET /api/pokemon/:name
+3. POST /api/session/favorite
+4. GET /api/session/favorites
+5. DELETE /api/session/favorites/:name
+
+### Comandos de ejecucion
+
+Desde compose-v4:
+
+```bash
+docker compose up -d --build
+```
+
+Si 8080 esta en uso:
+
+```bash
+FRONTEND_PORT=8081 docker compose up -d --build
+```
+
+Ver estado:
+
+```bash
+docker compose ps
+```
+
+Ver logs:
+
+```bash
+docker compose logs -f
+```
+
+Detener y eliminar:
+
+```bash
+docker compose down
+```
+
+### Verificacion realizada
+
+1. GET http://localhost:3000/health retorna 200 y backend conectado a Redis.
+2. GET http://localhost:8081/health retorna 200 cuando FRONTEND_PORT=8081.
+3. GET /api/session/favorites retorna sessionId y favoritos.
+4. Primera llamada a /api/pokemon/pikachu retorna source=api.
+5. Segunda llamada a /api/pokemon/pikachu retorna source=cache (cache Redis funcionando).
+
+## Diferencias clave entre compose-v3 y compose-v4
+
+1. compose-v3 introduce un servicio de base de datos (MySQL) junto a Nginx para practicar multi-servicio basico.
+2. compose-v4 implementa una arquitectura full-stack realista con backend, frontend, Redis, healthchecks, proxy Nginx y manejo de sesiones distribuidas.
+3. compose-v4 incorpora cache y estado de sesion en Redis, mientras que compose-v3 se enfoca en orquestacion y dependencias.
