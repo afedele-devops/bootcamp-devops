@@ -2,13 +2,13 @@ services:
   redis:
     image: redis:7-alpine
     container_name: pokemon-redis
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 3s
-      retries: 5
-      start_period: 5s
+    # command: ["redis-server", "--save", "", "--appendonly", "no"]
+    # healthcheck:
+    #   test: ["CMD", "redis-cli", "ping"]
+    #   interval: 10s
+    #   timeout: 3s
+    #   retries: 5
+    #   start_period: 5s
     networks:
       - pockemon-net
 
@@ -16,7 +16,6 @@ services:
     container_name: pokemon-backend
     build:
       context: ./backend
-      dockerfile: Dockerfile
     environment:
       REDIS_HOST: ${REDIS_HOST:-redis}
       REDIS_PORT: ${REDIS_PORT:-6379}
@@ -24,16 +23,15 @@ services:
       PORT: ${PORT:-3000}
       NODE_EV: ${NODE_EV:-development}
     depends_on:
-      redis:
-        condition: service_healthy
+      - redis
     ports:
       - "${PORT:-3000}:3000"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+    # healthcheck:
+    #   test: ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"]
+    #   interval: 15s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 15s
     networks:
       - pockemon-net
 
@@ -41,18 +39,16 @@ services:
     container_name: pokemon-frontend
     build:
       context: ./frontend
-      dockerfile: Dockerfile
     depends_on:
-      backend:
-        condition: service_healthy
+      - backend
     ports:
       - "${FRONTEND_PORT:-8080}:80"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost/health || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+    # healthcheck:
+    #   test: ["CMD-SHELL", "wget -qO- http://localhost/health || exit 1"]
+    #   interval: 15s
+    #   timeout: 5s
+    #   retries: 5
+    #   start_period: 10s
     networks:
       - pockemon-net
 
