@@ -1,0 +1,11 @@
+# docker build -t web-docker .
+# docker run -d --name web-app-docker -p 8091:80 web-app-docker
+
+services:
+  web-app-docker:
+    container_name: web-app-docker #opcional
+    build: . # Construye la imagen a partir del Dockerfile en el directorio actual
+    ports:
+      - "8091:80"
+
+

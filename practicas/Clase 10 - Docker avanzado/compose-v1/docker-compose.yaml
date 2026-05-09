@@ -1,0 +1,51 @@
+# docker run -d --name web-app -p 8086:80 nginx
+# docker run -d --name web-app2 -p 8087:80 -e NGINX_HOST=web-app2 -e NGINX_PORT=80 nginx
+# docker run -d --name web-app3 -p 8088:80 -v web-app-data:/usr/share/nginx/html nginx
+# docker run -d --name web-app4 -p 8089:80 --network web-network nginx
+# docker run -d --name web-app5 -p 8090:80 -v ./html:/usr/share/nginx/html nginx
+services:
+  web-app:
+    container_name: web-app #opcional
+    image: nginx
+    ports:
+      - "8086:80"
+  web-app2:
+    container_name: web-app2 #opcional
+    image: nginx
+    ports:
+      - "8087:80"
+    environment: # Ejemplo de variables de entorno para configurar NGINX  
+      - NGINX_HOST=web-app2
+      - NGINX_PORT=80
+  web-app3:
+    container_name: web-app3 #opcional
+    image: nginx
+    ports:
+      - "8088:80" 
+    volumes:
+      - web-app-data:/usr/share/nginx/html # Monta un volumen para persistencia de datos
+    networks:
+      - web-network # Conecta el contenedor a una red personalizada  
+  web-app4:
+    container_name: web-app4 #opcional
+    image: nginx
+    ports:
+      - "8089:80" 
+    networks:
+      - web-network # Conecta el contenedor a una red personalizada
+  web-app5:
+    container_name: web-app5 #opcional
+    image: nginx
+    ports:
+      - "8090:80" 
+    volumes:
+      - ./html:/usr/share/nginx/html # Monta un volumen local para servir contenido personalizado
+          
+
+volumes:
+  web-app-data:
+
+networks:
+  web-network:
+    driver: bridge # Especifica el tipo de red (opcional, bridge es el predeterminado)
+

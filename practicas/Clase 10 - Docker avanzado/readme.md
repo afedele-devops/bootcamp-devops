@@ -1,0 +1,1 @@
+docker run -d --name web-app -p 8086:80 nginx
