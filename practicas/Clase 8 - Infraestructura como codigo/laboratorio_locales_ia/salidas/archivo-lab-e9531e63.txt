@@ -3,8 +3,8 @@ Laboratorio local con Terraform
 Proyecto      : Laboratorio IA de archivos locales
 Autor         : Antonio
 Entorno       : practica
-Sufijo unico  : 7302e3aa
-Generado en   : 2026-05-08T21:00:02Z
+Sufijo unico  : e9531e63
+Generado en   : 2026-05-14T21:45:49Z
 Workspace     : default
 
 Mensaje:

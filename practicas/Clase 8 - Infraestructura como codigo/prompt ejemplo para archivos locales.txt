@@ -1,0 +1,7 @@
+Usa Terraform MCP para revisar hashicorp/local y hashicorp/random y generar un laboratorio local:
+-random_id para sufijo unico
+-local_file con contenido dinamico
+-outputs utiles
+-explicacion corta por archivo
+
+coloca el resultado en un folder llamado laboratorio_locales_ia
