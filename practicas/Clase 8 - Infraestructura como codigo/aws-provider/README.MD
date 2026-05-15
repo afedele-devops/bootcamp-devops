@@ -75,22 +75,51 @@ Explicación:
 
 Fragmento de `main.tf`:
 ```hcl
+
+# Permite políticas públicas a nivel bucket para hosting estático.
+resource "aws_s3_bucket_public_access_block" "website_access" {
+  bucket = aws_s3_bucket.practica_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# Política pública de lectura del objeto del sitio web.
+resource "aws_s3_bucket_policy" "public_read" {
+  bucket = aws_s3_bucket.practica_bucket.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = ["s3:GetObject"]
+        Resource  = ["${aws_s3_bucket.practica_bucket.arn}/*"]
+      }
+    ]
+  })
+
+  depends_on = [aws_s3_bucket_public_access_block.website_access]
+}
+
+# Subir index.html al bucket
 resource "aws_s3_object" "index" {
   bucket       = aws_s3_bucket.practica_bucket.id
   key          = var.index_document
   source       = var.index_file_path
-  acl          = "public-read"
   content_type = "text/html"
+
+  depends_on = [aws_s3_bucket_policy.public_read]
 }
 ```
 
 Explicación:
 - Sube el archivo local al bucket.
 - Declara `content_type` como HTML para servirlo correctamente en navegador.
-- Define ACL pública para lectura del objeto.
-
-Nota de práctica:
-- Algunas cuentas AWS tienen políticas que bloquean ACLs públicas; si ocurre, debes ajustar políticas de acceso público del bucket/cuenta.
+- Configura politicas de Public Read Access y Block Public Access
 
 ---
 
@@ -105,8 +134,10 @@ Nota de práctica:
   AWS CLI te pedirá estos datos:
   - `AWS Access Key ID`: tu access key de IAM.
   - `AWS Secret Access Key`: tu secret key de IAM.
-  - `Default region name`: por ejemplo `us-east-1`.
+  - `Default region name`: usa la región real donde vas a crear el bucket (por ejemplo `us-west-2`).
   - `Default output format`: puedes usar `json`.
+
+  Nota: en este laboratorio el provider AWS toma la región desde tu perfil/entorno (AWS CLI), por lo que debe coincidir con la región objetivo para evitar errores como `AuthorizationHeaderMalformed`.
 
   Para validar que tus credenciales funcionan:
   ```bash
@@ -126,19 +157,14 @@ terraform plan
 ```bash
 terraform apply -auto-approve
 ```
-5. Verifica el sitio accediendo a:
+5. Verifica el sitio desde los enlaces del output en la terminal
 
-Con los valores default de `variables.tf` (`nombre_bucket=anto-tf-test-bucket`, `index_document=index.html`) y usando región `us-east-1`, el endpoint esperado para validar el sitio estático es:
-```
-`http://anto-tf-test-bucket.s3-website-us-east-1.amazonaws.com`
-   ```
-
----
 
 ## Requisitos
 - Terraform 1.x
 - Cuenta AWS activa
 - Credenciales con permisos para S3 (crear bucket, configurar website, subir objetos)
+- Región AWS configurada correctamente en tu perfil o variables de entorno
 - Archivo `index.html` en la ruta definida por `index_file_path`
 
 ---

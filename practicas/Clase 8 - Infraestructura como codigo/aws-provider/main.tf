@@ -65,7 +65,7 @@ resource "aws_s3_object" "index" {
   key    = var.index_document
   source = var.index_file_path
   content_type = "text/html"
-
+  
   depends_on = [aws_s3_bucket_policy.public_read]
 }
 

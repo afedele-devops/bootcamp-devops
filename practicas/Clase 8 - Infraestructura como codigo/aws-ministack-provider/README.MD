@@ -114,7 +114,7 @@ Se sube el archivo index.html al bucket y se le otorgan permisos públicos para 
 
 ## Requisitos
 - Terraform >= 1.0
-- LocalStack corriendo: `docker run -p 4566:4566 ministackorg/ministack`
+- MiniStack corriendo: `docker run -p 4566:4566 ministackorg/ministack`
 - AWS CLI (opcional para pruebas)
 
 ---
